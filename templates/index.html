@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-flow: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(rgb(0, 0, 163), rgb(105, 0, 105));
+        }
+        h1{
+            color: blue;
+            text-shadow: 1px 1px 3px black;
+        }
+        .chat-container {
+            width: 400px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            background: no-repeat center / cover url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSjh4UsZL_WF9SQobC3k5T5gagKWzV2jOqoA&s");
+        }
+        .box{
+            display: flex;
+        }
+        #chat-box {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #ffffff1f;
+            backdrop-filter: blur(5px);
+        }
+        #chat-box p {
+            margin: 5px 0;
+        }
+        #chat-box .user {
+            color: aqua;
+            text-shadow: 1px 1px 2px black;
+        }
+        #chat-box .bot {
+            color: greenyellow;
+            text-shadow: 1px 1px 2px black;
+        }
+        input[type="text"] {
+            width: calc(100% - 70px);
+            padding: 10px;
+            margin-right: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #0056b3;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>ChatBot</h1>
+    <div class="chat-container">
+        <div id="chat-box"></div>
+        <div class="box">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button id="send-btn">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const sendBtn = document.getElementById('send-btn');
+        const userInput = document.getElementById('user-input');
+        const chatBox = document.getElementById('chat-box');
+
+        sendBtn.addEventListener('click', () => {
+            const userMessage = userInput.value.trim();
+            if (userMessage) {
+                appendMessage(userMessage, 'user');
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: userMessage })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    appendMessage(data.reply, 'bot');
+                })
+                .catch(error => {
+                    appendMessage("Error: Unable to connect to the chatbot.", 'bot');
+                });
+                userInput.value = '';
+            }
+        });
+
+        function appendMessage(message, sender) {
+            const p = document.createElement('p');
+            p.classList.add(sender);
+            p.textContent = `${sender === 'user' ? 'You: ' : 'Bot: '}${message}`;
+            chatBox.appendChild(p);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
